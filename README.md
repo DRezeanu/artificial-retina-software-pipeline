@@ -1,2 +1,8 @@
 # artificial-retina-software-pipeline
-This repository contains all the codebase for end-to-end software simulation of artificial retina prosthesis pipeline. 
+Rieke lab branch of Chichilnisky lab repo that no longer exists. Branch has minor updates to allow for cross platform installation on Windows, Mac, and Linux.
+
+## Installation
+clone repo
+cd to root directory
+run:
+```pip install```
