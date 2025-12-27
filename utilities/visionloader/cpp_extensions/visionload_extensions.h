@@ -4,6 +4,46 @@
 #include <pybind11/stl.h>
 #include <tuple>
 
+#if defined(__has_builtin)
+  #if __has_builtin(__builtin_bswap32)
+    #define HAS_BUILTIN_BSWAP32 1
+  #endif
+  #if __has_builtin(__builtin_bswap64)
+    #define HAS_BUILTIN_BSWAP64 1
+  #endif
+#endif
+
+static inline uint32_t bswap32(uint32_t x) {
+#if defined(HAS_BUILTIN_BSWAP32)
+    return __builtin_bswap32(x);
+#elif defined(_MSC_VER)
+    return _byteswap_ulong(x);
+#else
+    return (x >> 24) |
+           ((x >> 8) & 0x0000FF00u) |
+           ((x << 8) & 0x00FF0000u) |
+           (x << 24);
+#endif
+}
+
+static inline uint64_t bswap64(uint64_t x) {
+#if defined(HAS_BUILTIN_BSWAP64)
+    return __builtin_bswap64(x);
+#elif defined(_MSC_VER)
+    return _byteswap_uint64(x);
+#else
+    return (x >> 56) |
+           ((x >> 40) & 0x000000000000FF00ull) |
+           ((x >> 24) & 0x0000000000FF0000ull) |
+           ((x >> 8)  & 0x00000000FF000000ull) |
+           ((x << 8)  & 0x000000FF00000000ull) |
+           ((x << 24) & 0x0000FF0000000000ull) |
+           ((x << 40) & 0x00FF000000000000ull) |
+           (x << 56);
+#endif
+}
+
+
 namespace py=pybind11;
 
 std::tuple<py::array_t<float, py::array::c_style | py::array::forcecast>,
@@ -72,27 +112,27 @@ std::tuple<py::array_t<float, py::array::c_style | py::array::forcecast>,
 
                 write_offset = wh_offset + k;
 
-                temp = _byteswap_ulong(*(raw_buffer_as_int+read_offset));
+                temp = bswap32(*(raw_buffer_as_int+read_offset));
                 *(red_data_buffer+write_offset) = *(reinterpret_cast<float *>(&temp));
                 ++read_offset;
 
-                temp = _byteswap_ulong(*(raw_buffer_as_int+read_offset));
+                temp = bswap32(*(raw_buffer_as_int+read_offset));
                 *(red_err_buffer+write_offset) = *(reinterpret_cast<float *>(&temp));
                 ++read_offset;
 
-                temp = _byteswap_ulong(*(raw_buffer_as_int+read_offset));
+                temp = bswap32(*(raw_buffer_as_int+read_offset));
                 *(green_data_buffer+write_offset) = *(reinterpret_cast<float *>(&temp));
                 ++read_offset;
 
-                temp = _byteswap_ulong(*(raw_buffer_as_int+read_offset));
+                temp = bswap32(*(raw_buffer_as_int+read_offset));
                 *(green_err_buffer+write_offset) = *(reinterpret_cast<float *>(&temp));
                 ++read_offset;
 
-                temp = _byteswap_ulong(*(raw_buffer_as_int+read_offset));
+                temp = bswap32(*(raw_buffer_as_int+read_offset));
                 *(blue_data_buffer+write_offset) = *(reinterpret_cast<float *>(&temp));
                 ++read_offset;
 
-                temp = _byteswap_ulong(*(raw_buffer_as_int+read_offset));
+                temp = bswap32(*(raw_buffer_as_int+read_offset));
                 *(blue_err_buffer+write_offset) = *(reinterpret_cast<float *>(&temp));
                 ++read_offset;
             }

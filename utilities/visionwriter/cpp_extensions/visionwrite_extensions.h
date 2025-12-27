@@ -3,6 +3,47 @@
 #include <pybind11/numpy.h>
 #include <pybind11/stl.h>
 
+
+#if defined(__has_builtin)
+  #if __has_builtin(__builtin_bswap32)
+    #define HAS_BUILTIN_BSWAP32 1
+  #endif
+  #if __has_builtin(__builtin_bswap64)
+    #define HAS_BUILTIN_BSWAP64 1
+  #endif
+#endif
+
+static inline uint32_t bswap32(uint32_t x) {
+#if defined(HAS_BUILTIN_BSWAP32)
+    return __builtin_bswap32(x);
+#elif defined(_MSC_VER)
+    return _byteswap_ulong(x);
+#else
+    return (x >> 24) |
+           ((x >> 8) & 0x0000FF00u) |
+           ((x << 8) & 0x00FF0000u) |
+           (x << 24);
+#endif
+}
+
+static inline uint64_t bswap64(uint64_t x) {
+#if defined(HAS_BUILTIN_BSWAP64)
+    return __builtin_bswap64(x);
+#elif defined(_MSC_VER)
+    return _byteswap_uint64(x);
+#else
+    return (x >> 56) |
+           ((x >> 40) & 0x000000000000FF00ull) |
+           ((x >> 24) & 0x0000000000FF0000ull) |
+           ((x >> 8)  & 0x00000000FF000000ull) |
+           ((x << 8)  & 0x000000FF00000000ull) |
+           ((x << 24) & 0x0000FF0000000000ull) |
+           ((x << 40) & 0x00FF000000000000ull) |
+           (x << 56);
+#endif
+}
+
+
 namespace py=pybind11;
 
 py::bytes pack_ei_matrices(
@@ -33,8 +74,8 @@ py::bytes pack_ei_matrices(
     for (size_t i = 0; i < n_els; ++i) {
         for (size_t j = 0; j < n_samples; ++j) {
             size_t read_ix = i * n_samples + j;
-            output_buffer[write_offset++] = _byteswap_ulong(*(reinterpret_cast<uint32_t *>(ei_data_ptr + read_ix)));
-            output_buffer[write_offset++] = _byteswap_ulong(*(reinterpret_cast<uint32_t *>(error_ptr + read_ix)));
+            output_buffer[write_offset++] = bswap32(*(reinterpret_cast<uint32_t *>(ei_data_ptr + read_ix)));
+            output_buffer[write_offset++] = bswap32(*(reinterpret_cast<uint32_t *>(error_ptr + read_ix)));
         }
     }
 
@@ -93,10 +134,10 @@ py::bytes pack_sta_buffer_color (
 
         depth_offset = i * (sta_width * sta_height);
 
-        output_buffer[write_idx++] = _byteswap_ulong(static_cast<uint32_t>(sta_width));
-        output_buffer[write_idx++] = _byteswap_ulong(static_cast<uint32_t>(sta_height));
+        output_buffer[write_idx++] = bswap32(static_cast<uint32_t>(sta_width));
+        output_buffer[write_idx++] = bswap32(static_cast<uint32_t>(sta_height));
 
-        refresh_temp = _byteswap_uint64(*(reinterpret_cast<uint64_t *>(&refresh_time)));
+        refresh_temp = bswap64(*(reinterpret_cast<uint64_t *>(&refresh_time)));
         output_buffer[write_idx++] = static_cast<uint32_t> (refresh_temp >> 32);
         output_buffer[write_idx++] = static_cast<uint32_t> (refresh_temp & 0xFFFF);
 
@@ -108,14 +149,14 @@ py::bytes pack_sta_buffer_color (
 
                 read_offset = width_depth_offset + k;
 
-                output_buffer[write_idx++] = _byteswap_ulong(*(reinterpret_cast<uint32_t *> (red_data_ptr + read_offset)));
-                output_buffer[write_idx++] = _byteswap_ulong(*(reinterpret_cast<uint32_t *> (red_err_ptr + read_offset)));
+                output_buffer[write_idx++] = bswap32(*(reinterpret_cast<uint32_t *> (red_data_ptr + read_offset)));
+                output_buffer[write_idx++] = bswap32(*(reinterpret_cast<uint32_t *> (red_err_ptr + read_offset)));
 
-                output_buffer[write_idx++] = _byteswap_ulong(*(reinterpret_cast<uint32_t *> (green_data_ptr + read_offset)));
-                output_buffer[write_idx++] = _byteswap_ulong(*(reinterpret_cast<uint32_t *> (green_err_ptr + read_offset)));
+                output_buffer[write_idx++] = bswap32(*(reinterpret_cast<uint32_t *> (green_data_ptr + read_offset)));
+                output_buffer[write_idx++] = bswap32(*(reinterpret_cast<uint32_t *> (green_err_ptr + read_offset)));
 
-                output_buffer[write_idx++] = _byteswap_ulong(*(reinterpret_cast<uint32_t *> (blue_data_ptr + read_offset)));
-                output_buffer[write_idx++] = _byteswap_ulong(*(reinterpret_cast<uint32_t *> (blue_err_ptr + read_offset)));
+                output_buffer[write_idx++] = bswap32(*(reinterpret_cast<uint32_t *> (blue_data_ptr + read_offset)));
+                output_buffer[write_idx++] = bswap32(*(reinterpret_cast<uint32_t *> (blue_err_ptr + read_offset)));
 
             }
         }
