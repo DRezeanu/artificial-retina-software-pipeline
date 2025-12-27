@@ -140,6 +140,13 @@ py::bytes pack_sta_buffer_color (
         refresh_temp = bswap64(*(reinterpret_cast<uint64_t *>(&refresh_time)));
         output_buffer[write_idx++] = static_cast<uint32_t> (refresh_temp >> 32);
         output_buffer[write_idx++] = static_cast<uint32_t> (refresh_temp & 0xFFFF);
+        
+        // TODO: Eventually replace above with code below to aviod undefined behavior (strict aliasing)
+        // uint64_t refresh_bits;
+        //std::memcpy(&refresh_bits, &refresh_time, sizeof(refresh_bits));
+        //refresh_bits = bswap64(refresh_bits);
+        //output_buffer[write_idx++] = static_cast<uint32_t>(refresh_bits >> 32);
+        //output_buffer[write_idx++] = static_cast<uint32_t>(refresh_bits & 0xFFFFFFFFu);
 
         for (size_t j = 0; j < sta_width; ++j)  {
 
@@ -163,5 +170,9 @@ py::bytes pack_sta_buffer_color (
     }
 
 
+    // TODO: copy output buffer to pybytes and then delete it before returning (more secure, free up memory once used)
+    // py::bytes result(reinterpret_cast<char *> (output_buffer), n_output_entries * 4);
+    // delete[] output_buffer;
+    // return result
     return py::bytes(reinterpret_cast<char *> (output_buffer), n_output_entries * 4);
 }
