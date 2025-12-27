@@ -1,0 +1,9 @@
+Metadata-Version: 2.4
+Name: vision-utils
+Version: 1.1.1
+Summary: Utility functions for interacting with Litke recording binaries and Vision files
+Author: Eric Wu and Alex Gogliettino
+Requires-Dist: pybind11>=2.3
+Dynamic: author
+Dynamic: requires-dist
+Dynamic: summary

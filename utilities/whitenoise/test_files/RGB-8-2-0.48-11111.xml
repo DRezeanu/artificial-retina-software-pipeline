@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+
+
+
+    <ParametersGroup name="Make White Noise Movie">
+        <IntegerParameter name="Width" value="80"/>
+        <IntegerParameter name="Height" value="40"/>
+        <IntegerParameter name="Seed" value="11111"/>
+        <EnumeratorParameter name="ColorType" screenName="Color Type" value="0.0" values="RGB Independent:0:RGB Dependent:1:RGB Separated:2"/>        
+	<EnumeratorParameter name="NoiseType" screenName="Movie Type" value="0.0" values="Binary Movie:0:Gaussian Movie:1:"/>
+	<EnumeratorParameter name="RandomNumberGenerator" screenName="Random Number Generator" value="2.0" values="Macintosh ToolBox:0:Java:1:JavaV2:2"/>
+        <DoubleParameter name="ContrastSigma" screenName="Sigma" value=".48"/>
+    </ParametersGroup>
+
+    
+    
+    <ParametersGroup name="Calculate Auxiliary Parameters">
+        <FileParameter extension="+" name="File_Path" screenName="File Path" value=""/>
+
+	<ParametersGroup name="Set Movie" value="true">
+        	<StringParameter name="corners (pixels)" value=""/>
+        	<IntegerParameter name="pixelsPerStixelX" screenName="pixels per stixel X" value="8"/>
+        	<IntegerParameter name="pixelsPerStixelY" screenName="pixels per stixel Y" value="8"/>
+        	<IntegerParameter name="xOffset" screenName="xOffset (pixels)" value="0"/>
+        	<IntegerParameter name="yOffset" screenName="yOffset (pixels)" value="80"/>
+		<IntegerParameter name="refreshInterval" screenName="refresh interval (frames)" toolTip="The number of basic time periods (T=1/120 seconds) between the stimulus frames" value="2"/>
+	</ParametersGroup>
+ 	<ParametersGroup name="Override Electrodes From Spike Finding" value="false">
+ 	</ParametersGroup>
+    </ParametersGroup>
+
+</Configuration>
