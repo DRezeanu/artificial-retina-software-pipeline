@@ -5,3 +5,4 @@
 utilities/build/*
 utilities/visionloader/cython_extensions/visionfile_cext.c
 utilities/visionwriter/cython_extensions/visionwrite_cext.c
+utilities/bin2py/cython_extensions/bin2py_cythonext.c
