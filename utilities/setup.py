@@ -49,23 +49,36 @@ def cpp_flag(compiler):
 # only bother to deal with compilation on Unix and MacOS
 def make_pybind11_extension_with_flags (module_name, dependencies):
 
-    c_opts = ['-O3', '-ffast-math']
+    if 'GCC' in sys.version or 'Clang' in sys.version:
+        c_opts = ['-O3', '-ffast-math']
+    elif 'MSC' in sys.version:
+        c_opts = ['/02', '/fp:fast', '/EHsc']
+    else:
+        c_opts = []
     l_opts = []
 
     if sys.platform == 'darwin':
-        darwin_opts = ['-stdlib=libc++', '-mmacosx-version-min=10.7', '-std=c++11']
+        darwin_opts = ['-stdlib=libc++', '-mmacosx-version-min=10.7', '-std=c++11', '-fopenmp']
 
         c_opts = c_opts + darwin_opts
         l_opts = l_opts + darwin_opts
 
     if sys.platform == 'linux':
-        linux_additional_opts = ['-fopenmp', ]
+        linux_additional_opts = ['-fopenmp']
 
         c_opts = c_opts + linux_additional_opts
         l_opts = l_opts + linux_additional_opts
 
     if sys.platform == 'win32':
-        c_opts = ['/EHsc']
+        if 'GCC' in sys.version or 'Clang' in sys.version:
+            windows_additional_opts = ['-fopenmp']
+        elif 'MSC' in sys.version:
+            windows_additional_opts = ['/openmp']
+        else:
+            windows_additional_opts = []
+        
+        c_opts = c_opts + windows_additional_opts
+        l_opts = l_opts + windows_additional_opts
 
 
     return Extension(
