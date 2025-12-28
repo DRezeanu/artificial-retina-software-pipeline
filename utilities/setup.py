@@ -58,7 +58,7 @@ def make_pybind11_extension_with_flags (module_name, dependencies):
     l_opts = []
 
     if sys.platform == 'darwin':
-        darwin_opts = ['-stdlib=libc++', '-mmacosx-version-min=10.7', '-std=c++11', '-fopenmp']
+        darwin_opts = ['-stdlib=libc++', '-mmacosx-version-min=10.7', '-std=c++11']
 
         c_opts = c_opts + darwin_opts
         l_opts = l_opts + darwin_opts
