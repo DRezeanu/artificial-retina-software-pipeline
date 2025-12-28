@@ -3,3 +3,5 @@
 .git_archive
 *__pycache__
 utilities/build/*
+utilities/visionloader/cython_extensions/visionfile_cext.c
+utilities/visionwriter/cython_extensions/visionwrite_cext.c
