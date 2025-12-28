@@ -3,4 +3,4 @@
 .git_archive
 *__pycache__
 utilities/build/
-*.egg-info/SOURCES.txt
+utilities/vision_utils.egg-info
