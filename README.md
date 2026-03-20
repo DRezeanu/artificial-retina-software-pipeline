@@ -3,6 +3,10 @@ Rieke lab branch of Chichilnisky lab repo that no longer exists. Branch has mino
 
 ## Installation
 clone repo
-cd to root directory
+Ensure cython and pybind11 are installed
+cd into artificial-retina-sofware-pipeline/utilities
 run:
-```pip install```
+```pip install .```
+
+### If you run into a 'no cython' error, but you have already istalled cython, run:
+```pip install --no-build-isolation .```
