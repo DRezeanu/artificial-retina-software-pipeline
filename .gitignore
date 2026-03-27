@@ -4,3 +4,6 @@
 *__pycache__
 utilities/build/
 utilities/vision_utils.egg-info
+utilities/bin2py/cython_extensions/bin2py_cythonext.c
+utilities/visionloader/cython_extensions/visionfile_cext.c
+utilities/visionwriter/cython_extensions/visionwrite_cext.c
