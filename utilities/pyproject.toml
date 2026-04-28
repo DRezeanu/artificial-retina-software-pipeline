@@ -1,0 +1,11 @@
+[build-system]
+requires = [
+    "setuptools",
+    "Cython",
+    "pybind11"
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vision-utils"
+version = "1.1.1"

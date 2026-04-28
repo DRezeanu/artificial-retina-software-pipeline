@@ -1,7 +1,0 @@
-Cython>=0.29.33
-h5py>=3.8.0
-matplotlib>=3.3.4
-numpy>=1.19.5
-scipy>=1.5.4
-setuptools>=39.0.1
-statsmodels>=0.13.5
