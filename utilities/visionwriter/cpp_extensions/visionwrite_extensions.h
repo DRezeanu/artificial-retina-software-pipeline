@@ -89,16 +89,7 @@ py::bytes pack_sta_buffer_color (
     py::array_t<float, py::array::c_style | py::array::forcecast>& green_err,
     py::array_t<float, py::array::c_style | py::array::forcecast>& blue_sta,
     py::array_t<float, py::array::c_style | py::array::forcecast>& blue_err,
-    double refresh_time) {
-
-    /*
-    Note that we require that the arrrays have a different array order than the STAs
-        returned by visionloader. This is because the original order is a nightmare
-        for cache in memory accesses (and hence comically slow for fine
-        stimuli)
-
-    We will require an array order swap before using this function
-    */
+    double stixel_size) {
 
     py::buffer_info red_sta_info = red_sta.request();
     float *red_data_ptr = static_cast<float *> (red_sta_info.ptr);
@@ -108,7 +99,6 @@ py::bytes pack_sta_buffer_color (
     size_t sta_height = red_sta_info.shape[2];
 
     size_t n_output_entries = 6 * sta_width * sta_height * sta_depth + sta_depth * 4;
-
 
     py::buffer_info red_err_info = red_err.request();
     float *red_err_ptr = static_cast<float *> (red_err_info.ptr);
@@ -134,12 +124,12 @@ py::bytes pack_sta_buffer_color (
 
         depth_offset = i * (sta_width * sta_height);
 
-        output_buffer[write_idx++] = bswap32(static_cast<uint32_t>(sta_width));
         output_buffer[write_idx++] = bswap32(static_cast<uint32_t>(sta_height));
+        output_buffer[write_idx++] = bswap32(static_cast<uint32_t>(sta_width));
 
-        refresh_temp = bswap64(*(reinterpret_cast<uint64_t *>(&refresh_time)));
-        output_buffer[write_idx++] = static_cast<uint32_t> (refresh_temp >> 32);
-        output_buffer[write_idx++] = static_cast<uint32_t> (refresh_temp & 0xFFFF);
+        stixel_temp = bswap64(*(reinterpret_cast<uint64_t *>(&stixel_size)));
+        output_buffer[write_idx++] = static_cast<uint32_t> (stixel_temp >> 32);
+        output_buffer[write_idx++] = static_cast<uint32_t> (stixel_temp & 0xFFFF);
         
         // TODO: Eventually replace above with code below to aviod undefined behavior (strict aliasing)
         // uint64_t refresh_bits;
