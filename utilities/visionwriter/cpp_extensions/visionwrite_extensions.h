@@ -118,7 +118,7 @@ py::bytes pack_sta_buffer_color (
     uint32_t *output_buffer = new uint32_t[n_output_entries];
 
     size_t depth_offset, width_depth_offset, read_offset;
-    uint64_t refresh_temp;
+    uint64_t stixel_temp;
     size_t write_idx = 0;
     for (size_t i = 0; i < sta_depth; ++i) {
 
