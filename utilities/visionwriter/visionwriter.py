@@ -481,7 +481,13 @@ class EIWriter:
 
 
 
-class STAWriter:
+class STAWriter_depr:
+    """DEPRECATED: Original STAWriter class for writing sta data into .sta file after
+    packing the bytes appropriately private helper methods.
+
+    THIS METHOD IS NO LONGER USED. USE STAWriter METHOD INSTEAD.
+    """
+
     FILE_HEADER_LENGTH_BYTES = 164  # type: int
 
     BASIC_VERSION = 32  # type: int
@@ -521,7 +527,7 @@ class STAWriter:
         assert self.n_bytes_written == 0, 'header must be written at the beginning of the STA file'
 
         integer_section = struct.pack('>iiiii',
-                                      STAWriter.BASIC_VERSION,
+                                      STAWriter_depr.BASIC_VERSION,
                                       num_entries,
                                       self.height,
                                       self.width,
@@ -568,10 +574,10 @@ class STAWriter:
                           cell_id_order: Sequence[int]):
 
         # we must write the jump table in a specific place
-        assert self.n_bytes_written == STAWriter.FILE_HEADER_LENGTH_BYTES, \
+        assert self.n_bytes_written == STAWriter_depr.FILE_HEADER_LENGTH_BYTES, \
             'jump table must be written immediately after the header'
 
-        write_position = STAWriter.FILE_HEADER_LENGTH_BYTES + len(cell_id_order) * (N_BYTES_32BIT + N_BYTES_64BIT)
+        write_position = STAWriter_depr.FILE_HEADER_LENGTH_BYTES + len(cell_id_order) * (N_BYTES_32BIT + N_BYTES_64BIT)
         # note that we have to account for the size of the jump table as well
 
         for cell_id in cell_id_order:
@@ -605,7 +611,7 @@ class STAWriter:
         self.sta_fp.close()
 
 
-class STAWriterNP(object):
+class STAWriter(object):
     HEADER_LENGTH_BYTES = (7 * N_BYTES_32BIT) + N_BYTES_64BIT + 128
     HEADER_PAD_LENGTH_BYTES = N_BYTES_64BIT + 128
 
@@ -628,12 +634,16 @@ class STAWriterNP(object):
         stixel_size: float=30.0,
         frame_refresh: float=1000/120,
     ) -> None:
-        """
-        Arguments:
+        """Method for generating .sta file for vision using numpy array input.
+
+        Args:
             sta: Tensor containing the spike-triggered average. Dimensions:[cell,time,y,x,RGB]  (type: numpy.ndarray)
             cluster_id: Array containing the cluster/cell ids. Dimensions:[cell] (type: numpy.ndarray)
             stixel_size: Scalar value for the edge length of each stixel in microns (type: float)
             frame_refresh: Scalar value for the temporal refresh of the STA in milliseconds (type: float)
+
+        Returns:
+            None: Writes .sta file to disk
         """
         n_cells = sta.shape[0] # Number of cells
         sta_width = sta.shape[3] # Width
@@ -667,7 +677,7 @@ class STAWriterNP(object):
             fp.write( struct.pack('>d', frame_refresh) )
 
             # Skip the header (164 bytes) and write the cluster_ids and data locations.
-            fp.seek(STAWriterNP.HEADER_LENGTH_BYTES, os.SEEK_SET) # fp.seek(164, os.SEEK_SET)
+            fp.seek(STAWriter.HEADER_LENGTH_BYTES, os.SEEK_SET) # fp.seek(164, os.SEEK_SET)
 
             # Write the Cell Ids and data locations
             for i, id in enumerate(cluster_id):
