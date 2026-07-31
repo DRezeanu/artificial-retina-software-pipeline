@@ -3,6 +3,8 @@ from setuptools.command.build_ext import build_ext
 from Cython.Build import cythonize
 import setuptools
 
+import glob
+import os
 import sys
 
 class get_pybind_include(object):
@@ -81,9 +83,16 @@ def make_pybind11_extension_with_flags (module_name, dependencies):
         l_opts = l_opts + windows_additional_opts
 
 
+    # build_ext only recompiles when a listed source is newer than its object file.
+    # Headers are not sources, so without depends= an edit to a .h is silently ignored
+    # and a stale extension gets reinstalled.
+    headers = sorted({h for source in dependencies
+                      for h in glob.glob(os.path.join(os.path.dirname(source), '*.h'))})
+
     return Extension(
         module_name,
         dependencies,
+        depends=headers,
         include_dirs=[
             # Path to pybind11 headers
             get_pybind_include(),

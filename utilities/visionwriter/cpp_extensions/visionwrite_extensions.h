@@ -1,5 +1,6 @@
 #include <string>
 #include <cstdint>
+#include <cstring>
 #include <pybind11/numpy.h>
 #include <pybind11/stl.h>
 
@@ -127,16 +128,11 @@ py::bytes pack_sta_buffer_color (
         output_buffer[write_idx++] = bswap32(static_cast<uint32_t>(sta_height));
         output_buffer[write_idx++] = bswap32(static_cast<uint32_t>(sta_width));
 
-        stixel_temp = bswap64(*(reinterpret_cast<uint64_t *>(&stixel_size)));
-        output_buffer[write_idx++] = static_cast<uint32_t> (stixel_temp >> 32);
-        output_buffer[write_idx++] = static_cast<uint32_t> (stixel_temp & 0xFFFF);
-        
-        // TODO: Eventually replace above with code below to aviod undefined behavior (strict aliasing)
-        // uint64_t refresh_bits;
-        //std::memcpy(&refresh_bits, &refresh_time, sizeof(refresh_bits));
-        //refresh_bits = bswap64(refresh_bits);
-        //output_buffer[write_idx++] = static_cast<uint32_t>(refresh_bits >> 32);
-        //output_buffer[write_idx++] = static_cast<uint32_t>(refresh_bits & 0xFFFFFFFFu);
+        // memcpy rather than reinterpret_cast: punning a double through uint64_t*
+        // violates strict aliasing, which -O3 is entitled to act on.
+        std::memcpy(&stixel_temp, &stixel_size, sizeof(stixel_temp));
+        output_buffer[write_idx++] = bswap32(static_cast<uint32_t>(stixel_temp >> 32));
+        output_buffer[write_idx++] = bswap32(static_cast<uint32_t>(stixel_temp & 0xFFFFFFFFu));
 
         for (size_t j = 0; j < sta_width; ++j)  {
 
