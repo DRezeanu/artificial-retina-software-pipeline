@@ -651,9 +651,6 @@ class STAWriter(object):
         sta_depth = sta.shape[1] # Time depth
         sta_colors = sta.shape[4] # Number of color channels for STA
 
-        if ste is None:
-            ste = np.zeros_like(sta)
-
         # Reverse the STA time dimension for vision.
         sta = sta[:,::-1,:,:,:]
 
@@ -684,17 +681,22 @@ class STAWriter(object):
                 fp.write( struct.pack('>I', id) ) # Cluster ID or Cell Number
                 fp.write( struct.pack('>Q', sta_size * i + first_location) ) # Data locations
 
+            ste_null = np.zeros_like(sta[0])
+
             # Write each STA.
             for cell in tqdm(range(n_cells), desc ="Writing STA file ..."):
+
+                ste_cell = ste_null if ste is None else ste[cell]
+
                 # Write frame refresh and depth for each STA.
                 fp.write( struct.pack('>d', frame_refresh) )
                 fp.write( struct.pack('>I', sta_depth) )
                 output_buffer = vwcpp.pack_sta_buffer_color(sta[cell,:,:,:,0],
-                                                            ste[cell,:,:,:,0],
+                                                            ste_cell[:,:,:,0],
                                                             sta[cell,:,:,:,1],
-                                                            ste[cell,:,:,:,1],
+                                                            ste_cell[:,:,:,1],
                                                             sta[cell,:,:,:,2],
-                                                            ste[cell,:,:,:,2],
+                                                            ste_cell[:,:,:,2],
                                                             stixel_size)
                 fp.write(output_buffer)
                 # for t in range(sta_depth):
