@@ -80,7 +80,11 @@ py::bytes pack_ei_matrices(
         }
     }
 
-    return py::bytes(reinterpret_cast<char *> (output_buffer), n_output_entries * 4);
+    // copy output buffer to pybytes and then delete it before returning
+    // (more secure and it frees up memory once used... this is critical for huge STAs)
+    py::bytes result(reinterpret_cast<char *> (output_buffer), n_output_entries * 4);
+    delete[] output_buffer;
+    return result;
 }
 
 py::bytes pack_sta_buffer_color (
@@ -156,9 +160,9 @@ py::bytes pack_sta_buffer_color (
     }
 
 
-    // TODO: copy output buffer to pybytes and then delete it before returning (more secure, free up memory once used)
-    // py::bytes result(reinterpret_cast<char *> (output_buffer), n_output_entries * 4);
-    // delete[] output_buffer;
-    // return result
-    return py::bytes(reinterpret_cast<char *> (output_buffer), n_output_entries * 4);
+    // copy output buffer to pybytes and then delete it before returning
+    // (more secure and it frees up memory once used... this is critical for huge STAs)
+    py::bytes result(reinterpret_cast<char *> (output_buffer), n_output_entries * 4);
+    delete[] output_buffer;
+    return result;
 }
